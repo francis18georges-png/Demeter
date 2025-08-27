@@ -14,4 +14,5 @@ src/ia_skeleton/services/metrics/server.py
 tests/test_golden_exists.py
 tests/test_policy_yaml.py
 tests/test_simulator.py
+tests/test_upload.py
 tests/test_webui.py
