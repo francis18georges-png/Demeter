@@ -50,7 +50,7 @@ async def upload(files: list[UploadFile]):
         }
         MANIFEST.touch()
         with MANIFEST.open("a", encoding="utf-8") as w:
-            w.write(json.dumps(meta, ensure_ascii=False) + "\n")
+            w.write(json.dumps(meta, ensure_ascii=False) + "\\n")
         saved.append(meta)
     return {"status":"ok","count": len(saved), "files": saved}
 
@@ -78,7 +78,7 @@ def files():
     return f"<!doctype html><meta charset='utf-8'><h2>Fichiers importés</h2>{table}<p><a href='/'>← retour</a></p>"
 
 _TEXT_EXTS = {".txt",".md",".csv",".json",".yaml",".yml",".log"}
-_MAX_PREVIEW = 200_000
+_MAX_PREVIEW = 200_000  # 200 KB
 
 @app.get("/preview", response_class=HTMLResponse)
 def preview(name: str = Query(..., min_length=1)):
@@ -88,7 +88,10 @@ def preview(name: str = Query(..., min_length=1)):
     if file_path.suffix.lower() not in _TEXT_EXTS:
         return HTMLResponse(f"Prévisualisation limitée pour {html.escape(safe)} (type non texte).", status_code=200)
     data = file_path.read_bytes()[:_MAX_PREVIEW]
-    txt = data.decode("utf-8", errors="replace")
+    try:
+        txt = data.decode("utf-8", errors="replace")
+    except Exception:
+        txt = str(data[:4096])
     escaped = html.escape(txt)
     return f"<!doctype html><meta charset='utf-8'><h3>Prévisualisation: {html.escape(safe)}</h3><pre style='white-space:pre-wrap'>{escaped}</pre><p><a href='/files'>← fichiers</a></p>"
 
