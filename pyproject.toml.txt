@@ -1,0 +1,23 @@
+﻿Remove-Item .\pyproject.toml -Force -ErrorAction SilentlyContinue
+$toml = @'
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ia-skeleton"
+version = "0.0.1"
+description = "Gate0 skeleton"
+requires-python = ">=3.10"
+dependencies = [
+  "prometheus-client>=0.20.0",
+  "opentelemetry-sdk>=1.26.0",
+  "opentelemetry-exporter-otlp>=1.26.0",
+  "pytest>=8.3.0",
+  "flake8>=7.1.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+'@
+[System.IO.File]::WriteAllText((Resolve-Path .\pyproject.toml), $toml, (New-Object System.Text.UTF8Encoding($false)))

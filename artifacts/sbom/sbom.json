@@ -1,0 +1,9 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2025-08-27T22:22:43.802101Z"
+  },
+  "components": []
+}

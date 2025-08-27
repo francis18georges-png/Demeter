@@ -1,0 +1,1 @@
+Admin area: secrets in Vault/CI only. Kill-switch file: admin/KILL

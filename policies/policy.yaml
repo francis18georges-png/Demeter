@@ -1,0 +1,25 @@
+auto_editable:
+  - services/retrieval/**
+  - services/rag/**
+blocked_areas:
+  - services/auth/**
+  - services/system/**
+web_allowlist:
+  - "docs.python.org"
+  - "developer.mozilla.org"
+  - "rfc-editor.org"
+local_ingest:
+  local_allowlist: ["datasets/**"]
+  deny_ext: [".exe",".dll"]
+  max_file_size_mb: 200
+  pii_default: "mask"
+quotas:
+  patches_per_day: 5
+  web_requests_per_task: 50
+gates:
+  coverage_min: 0.80
+  sast_high_max: 0
+  perf_p95_slowdown_max: 0.02
+admin_mode:
+  enabled: false
+  kill_switch_file: "admin/KILL"

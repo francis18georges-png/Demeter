@@ -1,0 +1,41 @@
+name: Gate0 CI
+on: [push, pull_request]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Lint
+        run: flake8
+
+      - name: Unit tests
+        run: pytest -q
+
+      - name: Simulate offline
+        run: python tools/simulate_offline.py
+
+      - name: SBOM
+        env:
+          ADMIN_HMAC_SECRET: ${{ secrets.ADMIN_HMAC_SECRET || 'dev-secret' }}
+        run: |
+          python tools/sbom_gen.py
+          python tools/sbom_sign.py artifacts/sbom/sbom.json
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate0-artifacts
+          path: |
+            artifacts/sbom/*
+            snapshots/*
