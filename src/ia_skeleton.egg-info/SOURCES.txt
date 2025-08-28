@@ -11,6 +11,7 @@ src/ia_skeleton/services/app/min_echo.py
 src/ia_skeleton/services/app/webui.py
 src/ia_skeleton/services/common/tracing.py
 src/ia_skeleton/services/metrics/server.py
+tests/test_files_preview.py
 tests/test_golden_exists.py
 tests/test_policy_yaml.py
 tests/test_simulator.py
