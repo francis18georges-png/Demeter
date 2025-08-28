@@ -11,3 +11,7 @@ try:
     from . import auth_patch  # protège /logs*
 except Exception:
     pass
+try:
+    from . import logs_level_patch  # filtre /logs par ?level=
+except Exception:
+    pass
