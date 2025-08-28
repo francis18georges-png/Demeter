@@ -97,7 +97,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 
 
 
-# --- Dossiers / manifest (exportÃƒÆ’Ã‚Â©s pour les tests) ---
+# --- Dossiers / manifest (exportÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©s pour les tests) ---
 
 
 
@@ -412,7 +412,7 @@ def _iter_manifest():
 
 
 
-                # Ligne invalide (ex: chemins Windows non ÃƒÆ’Ã‚Â©chappÃƒÆ’Ã‚Â©s) -> on ignore
+                # Ligne invalide (ex: chemins Windows non ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©chappÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©s) -> on ignore
 
 
 
@@ -556,7 +556,7 @@ def home():
 
 
 
-        "<h1>Demeter ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ Import</h1>"
+        "<h1>Demeter ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ Import</h1>"
 
 
 
@@ -601,7 +601,7 @@ def home():
 
 
 
-        "<p><a href='/files'>Voir les fichiers importÃƒÆ’Ã‚Â©s</a></p>"
+        "<p><a href='/files'>Voir les fichiers importÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©s</a></p>"
 
 
 
@@ -925,7 +925,7 @@ def list_files():
 
 
 
-        "<h2>Fichiers importÃƒÆ’Ã‚Â©s</h2>"
+        "<h2>Fichiers importÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©s</h2>"
 
 
 
@@ -961,7 +961,7 @@ def list_files():
 
 
 
-        "<p><a href='/'>ÃƒÂ¢Ã¢â‚¬Â Ã‚Â retour</a></p>"
+        "<p><a href='/'>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Ãƒâ€šÃ‚Â retour</a></p>"
 
 
 
@@ -1132,7 +1132,7 @@ def preview(filename: str):
 
 
 
-    # AperÃƒÆ’Ã‚Â§u simple pour texte/csv (limite taille)
+    # AperÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§u simple pour texte/csv (limite taille)
 
 
 
@@ -1213,7 +1213,7 @@ def preview(filename: str):
 
 
 
-            f"<h2>AperÃƒÆ’Ã‚Â§u: {filename}</h2>"
+            f"<h2>AperÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§u: {filename}</h2>"
 
 
 
@@ -1240,7 +1240,7 @@ def preview(filename: str):
 
 
 
-            "<p><a href='/files'>ÃƒÂ¢Ã¢â‚¬Â Ã‚Â fichiers</a></p>"
+            "<p><a href='/files'>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Ãƒâ€šÃ‚Â fichiers</a></p>"
 
 
 
@@ -1285,7 +1285,7 @@ def preview(filename: str):
 
 
 
-        f"AperÃƒÆ’Ã‚Â§u non supportÃƒÆ’Ã‚Â© pour {filename} (mime={mime})", status_code=200
+        f"AperÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§u non supportÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â© pour {filename} (mime={mime})", status_code=200
 
 
 
@@ -1550,7 +1550,7 @@ async def upload(request: Request, files: List[UploadFile] = File(None)):
     import json, mimetypes, time, os
     INGEST.mkdir(parents=True, exist_ok=True)
     man = INGEST / "manifest.jsonl"
-    # fallback: si "files" n'a pas Ã©tÃ© bindÃ© par FastAPI, lire le formulaire brut
+    # fallback: si "files" n'a pas ÃƒÂ©tÃƒÂ© bindÃƒÂ© par FastAPI, lire le formulaire brut
     if files is None:
         form = await request.form()
         files = []
@@ -1560,7 +1560,7 @@ async def upload(request: Request, files: List[UploadFile] = File(None)):
                 files.append(v)
     saved = []
     for uf in (files or []):
-        # normaliser le nom (Ã©viter chemins envoyÃ©s par certains clients)
+        # normaliser le nom (ÃƒÂ©viter chemins envoyÃƒÂ©s par certains clients)
         fname = os.path.basename(uf.filename or "upload.bin")
         dest = INGEST / fname
         data = await uf.read()
@@ -1582,7 +1582,7 @@ def chat(q: str = Form(...)):
     text = (q or "")
     low = text.lower()
     if ("csv" in low) or ("import" in low) or ("fichier" in low):
-        # RÃƒÂ©ponse minimale mais suffisante pour le test (contient 'upload_file')
+        # RÃƒÆ’Ã‚Â©ponse minimale mais suffisante pour le test (contient 'upload_file')
         return "<section><div id='upload_file'>Importer un fichier</div><a href='/files'>Voir fichiers</a></section>"
     return f"<pre>{text}</pre>"
 
@@ -1601,3 +1601,15 @@ def chat(q: str = Form(...)):
                "<p><a href='/files'>Voir les fichiers</a></p>"
         return HTMLResponse(html)
     return {"intent": "chat", "echo": text}
+
+from fastapi.responses import HTMLResponse
+
+@app.get("/")
+def home():
+    html = "<!doctype html><meta charset='utf-8'>" \
+           "<h2>Demeter</h2>" \
+           "<p><a href='/files'>📄 Fichiers</a></p>" \
+           "<form id='upload_file' action='/upload' method='post' enctype='multipart/form-data'>" \
+           "<input type='file' name='files' multiple>" \
+           "<button type='submit'>Upload</button></form>"
+    return HTMLResponse(html)
