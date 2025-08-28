@@ -97,7 +97,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 
 
 
-# --- Dossiers / manifest (exportÃ©s pour les tests) ---
+# --- Dossiers / manifest (exportÃƒÂ©s pour les tests) ---
 
 
 
@@ -412,7 +412,7 @@ def _iter_manifest():
 
 
 
-                # Ligne invalide (ex: chemins Windows non Ã©chappÃ©s) -> on ignore
+                # Ligne invalide (ex: chemins Windows non ÃƒÂ©chappÃƒÂ©s) -> on ignore
 
 
 
@@ -556,7 +556,7 @@ def home():
 
 
 
-        "<h1>Demeter â€“ Import</h1>"
+        "<h1>Demeter Ã¢â‚¬â€œ Import</h1>"
 
 
 
@@ -601,7 +601,7 @@ def home():
 
 
 
-        "<p><a href='/files'>Voir les fichiers importÃ©s</a></p>"
+        "<p><a href='/files'>Voir les fichiers importÃƒÂ©s</a></p>"
 
 
 
@@ -925,7 +925,7 @@ def list_files():
 
 
 
-        "<h2>Fichiers importÃ©s</h2>"
+        "<h2>Fichiers importÃƒÂ©s</h2>"
 
 
 
@@ -961,7 +961,7 @@ def list_files():
 
 
 
-        "<p><a href='/'>â† retour</a></p>"
+        "<p><a href='/'>Ã¢â€ Â retour</a></p>"
 
 
 
@@ -1132,7 +1132,7 @@ def preview(filename: str):
 
 
 
-    # AperÃ§u simple pour texte/csv (limite taille)
+    # AperÃƒÂ§u simple pour texte/csv (limite taille)
 
 
 
@@ -1213,7 +1213,7 @@ def preview(filename: str):
 
 
 
-            f"<h2>AperÃ§u: {filename}</h2>"
+            f"<h2>AperÃƒÂ§u: {filename}</h2>"
 
 
 
@@ -1240,7 +1240,7 @@ def preview(filename: str):
 
 
 
-            "<p><a href='/files'>â† fichiers</a></p>"
+            "<p><a href='/files'>Ã¢â€ Â fichiers</a></p>"
 
 
 
@@ -1285,7 +1285,7 @@ def preview(filename: str):
 
 
 
-        f"AperÃ§u non supportÃ© pour {filename} (mime={mime})", status_code=200
+        f"AperÃƒÂ§u non supportÃƒÂ© pour {filename} (mime={mime})", status_code=200
 
 
 
@@ -1542,46 +1542,62 @@ from fastapi import Form
 from typing import List
 from fastapi import UploadFile, File
 
+from typing import List
+from fastapi import UploadFile, File, Request
+
 @app.post("/upload")
-async def upload(files: List[UploadFile] = File(None), file: UploadFile = File(None)):
-    """
-    Accepte soit `files` (plusieurs), soit `file` (un seul).
-    """
-    import json, mimetypes, time
+async def upload(request: Request, files: List[UploadFile] = File(None)):
+    import json, mimetypes, time, os
     INGEST.mkdir(parents=True, exist_ok=True)
     man = INGEST / "manifest.jsonl"
-    items = []
-    if file is not None:
-        items.append(file)
-    if files:
-        items.extend(files)
-
+    # fallback: si "files" n'a pas été bindé par FastAPI, lire le formulaire brut
+    if files is None:
+        form = await request.form()
+        files = []
+        # form peut contenir plusieurs champs "files"
+        for k, v in form.multi_items():
+            if k == "files" and hasattr(v, "filename"):
+                files.append(v)
     saved = []
-    for uf in items:
-        dest = INGEST / uf.filename
+    for uf in (files or []):
+        # normaliser le nom (éviter chemins envoyés par certains clients)
+        fname = os.path.basename(uf.filename or "upload.bin")
+        dest = INGEST / fname
         data = await uf.read()
         with dest.open("wb") as w:
             w.write(data)
         row = {
             "ts": int(time.time()),
-            "filename": uf.filename,
+            "filename": fname,
             "bytes": dest.stat().st_size,
-            "mime": (uf.content_type or (mimetypes.guess_type(dest.name)[0] or "application/octet-stream")),
+            "mime": (getattr(uf, "content_type", None) or (mimetypes.guess_type(dest.name)[0] or "application/octet-stream")),
             "path": str(dest),
         }
         with man.open("a", encoding="utf-8") as w:
-            w.write(json.dumps(row, ensure_ascii=False) + "\\n")
+            w.write(json.dumps(row, ensure_ascii=False) + "\n")
         saved.append(row)
     return {"saved": saved}
-
-from fastapi import Form
-from fastapi.responses import HTMLResponse
-
 @app.post("/chat", response_class=HTMLResponse)
 def chat(q: str = Form(...)):
     text = (q or "")
     low = text.lower()
     if ("csv" in low) or ("import" in low) or ("fichier" in low):
-        # Réponse minimale mais suffisante pour le test (contient 'upload_file')
+        # RÃ©ponse minimale mais suffisante pour le test (contient 'upload_file')
         return "<section><div id='upload_file'>Importer un fichier</div><a href='/files'>Voir fichiers</a></section>"
     return f"<pre>{text}</pre>"
+
+
+from fastapi import Form
+from fastapi.responses import HTMLResponse
+
+@app.post("/chat")
+def chat(q: str = Form(...)):
+    text = (q or "")
+    low = text.lower()
+    if ("csv" in low) or ("import" in low) or ("fichier" in low):
+        html = "<!doctype html><meta charset='utf-8'><h2>Importer</h2>" \
+               "<form id='upload_file' action='/upload' method='post' enctype='multipart/form-data'>" \
+               "<input type='file' name='files' multiple><button type='submit'>Upload</button></form>" \
+               "<p><a href='/files'>Voir les fichiers</a></p>"
+        return HTMLResponse(html)
+    return {"intent": "chat", "echo": text}
