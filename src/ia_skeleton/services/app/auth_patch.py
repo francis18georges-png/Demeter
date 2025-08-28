@@ -1,4 +1,4 @@
-﻿from . import webui as _webui
+from . import webui as _webui
 app = _webui.app
 
 import os
