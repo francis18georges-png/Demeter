@@ -17,7 +17,7 @@ app.add_middleware(
 )
 
 # --- Auth par header Bearer OU ?access_token= ---
-PROTECT_PATHS = ("/logs",)  # couvre /logs, /logs/stream, /logs/export
+PROTECT_PATHS = ("/logs", "/logs/stream", "/logs/export")
 
 def _requires_auth(scope: dict) -> bool:
     path = scope.get("path") or ""
@@ -42,3 +42,6 @@ async def token_guard(request, call_next):
             return JSONResponse({"detail": "Unauthorized"}, status_code=401)
 
     return await call_next(request)
+
+
+
