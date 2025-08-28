@@ -97,7 +97,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 
 
 
-# --- Dossiers / manifest (exportÃƒÂ©s pour les tests) ---
+# --- Dossiers / manifest (exportÃƒÆ’Ã‚Â©s pour les tests) ---
 
 
 
@@ -412,7 +412,7 @@ def _iter_manifest():
 
 
 
-                # Ligne invalide (ex: chemins Windows non ÃƒÂ©chappÃƒÂ©s) -> on ignore
+                # Ligne invalide (ex: chemins Windows non ÃƒÆ’Ã‚Â©chappÃƒÆ’Ã‚Â©s) -> on ignore
 
 
 
@@ -556,7 +556,7 @@ def home():
 
 
 
-        "<h1>Demeter Ã¢â‚¬â€œ Import</h1>"
+        "<h1>Demeter ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ Import</h1>"
 
 
 
@@ -601,7 +601,7 @@ def home():
 
 
 
-        "<p><a href='/files'>Voir les fichiers importÃƒÂ©s</a></p>"
+        "<p><a href='/files'>Voir les fichiers importÃƒÆ’Ã‚Â©s</a></p>"
 
 
 
@@ -925,7 +925,7 @@ def list_files():
 
 
 
-        "<h2>Fichiers importÃƒÂ©s</h2>"
+        "<h2>Fichiers importÃƒÆ’Ã‚Â©s</h2>"
 
 
 
@@ -961,7 +961,7 @@ def list_files():
 
 
 
-        "<p><a href='/'>Ã¢â€ Â retour</a></p>"
+        "<p><a href='/'>ÃƒÂ¢Ã¢â‚¬Â Ã‚Â retour</a></p>"
 
 
 
@@ -1132,7 +1132,7 @@ def preview(filename: str):
 
 
 
-    # AperÃƒÂ§u simple pour texte/csv (limite taille)
+    # AperÃƒÆ’Ã‚Â§u simple pour texte/csv (limite taille)
 
 
 
@@ -1213,7 +1213,7 @@ def preview(filename: str):
 
 
 
-            f"<h2>AperÃƒÂ§u: {filename}</h2>"
+            f"<h2>AperÃƒÆ’Ã‚Â§u: {filename}</h2>"
 
 
 
@@ -1240,7 +1240,7 @@ def preview(filename: str):
 
 
 
-            "<p><a href='/files'>Ã¢â€ Â fichiers</a></p>"
+            "<p><a href='/files'>ÃƒÂ¢Ã¢â‚¬Â Ã‚Â fichiers</a></p>"
 
 
 
@@ -1285,7 +1285,7 @@ def preview(filename: str):
 
 
 
-        f"AperÃƒÂ§u non supportÃƒÂ© pour {filename} (mime={mime})", status_code=200
+        f"AperÃƒÆ’Ã‚Â§u non supportÃƒÆ’Ã‚Â© pour {filename} (mime={mime})", status_code=200
 
 
 
@@ -1550,7 +1550,7 @@ async def upload(request: Request, files: List[UploadFile] = File(None)):
     import json, mimetypes, time, os
     INGEST.mkdir(parents=True, exist_ok=True)
     man = INGEST / "manifest.jsonl"
-    # fallback: si "files" n'a pas été bindé par FastAPI, lire le formulaire brut
+    # fallback: si "files" n'a pas Ã©tÃ© bindÃ© par FastAPI, lire le formulaire brut
     if files is None:
         form = await request.form()
         files = []
@@ -1560,7 +1560,7 @@ async def upload(request: Request, files: List[UploadFile] = File(None)):
                 files.append(v)
     saved = []
     for uf in (files or []):
-        # normaliser le nom (éviter chemins envoyés par certains clients)
+        # normaliser le nom (Ã©viter chemins envoyÃ©s par certains clients)
         fname = os.path.basename(uf.filename or "upload.bin")
         dest = INGEST / fname
         data = await uf.read()
@@ -1576,13 +1576,13 @@ async def upload(request: Request, files: List[UploadFile] = File(None)):
         with man.open("a", encoding="utf-8") as w:
             w.write(json.dumps(row, ensure_ascii=False) + "\n")
         saved.append(row)
-    return {"saved": saved}
+    return {"status":"ok","count": len(saved), "saved": saved}
 @app.post("/chat", response_class=HTMLResponse)
 def chat(q: str = Form(...)):
     text = (q or "")
     low = text.lower()
     if ("csv" in low) or ("import" in low) or ("fichier" in low):
-        # RÃ©ponse minimale mais suffisante pour le test (contient 'upload_file')
+        # RÃƒÂ©ponse minimale mais suffisante pour le test (contient 'upload_file')
         return "<section><div id='upload_file'>Importer un fichier</div><a href='/files'>Voir fichiers</a></section>"
     return f"<pre>{text}</pre>"
 
