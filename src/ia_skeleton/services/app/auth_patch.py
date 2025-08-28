@@ -1,4 +1,4 @@
-from . import webui as _webui
+﻿from . import webui as _webui
 app = _webui.app
 
 import os
@@ -16,8 +16,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Auth par header Bearer ---
-PROTECT_PATHS = ("/logs",)  # protège /logs, /logs/stream, /logs/export
+# --- Auth par header Bearer OU ?access_token= ---
+PROTECT_PATHS = ("/logs",)  # couvre /logs, /logs/stream, /logs/export
+
 def _requires_auth(scope: dict) -> bool:
     path = scope.get("path") or ""
     return any(path.startswith(p) for p in PROTECT_PATHS)
@@ -26,7 +27,18 @@ def _requires_auth(scope: dict) -> bool:
 async def token_guard(request, call_next):
     token = os.getenv("DEMETER_TOKEN")
     if token and _requires_auth(request.scope):
-        auth = request.headers.get("authorization", "")
-        if not auth.startswith("Bearer ") or auth.removeprefix("Bearer ").strip() != token:
+        hdr = request.headers.get("authorization", "") or ""
+        qtk = None
+        try:
+            qtk = request.query_params.get("access_token")
+        except Exception:
+            qtk = None
+
+        provided = hdr[7:].strip() if hdr.startswith("Bearer ") else None
+        if not provided and qtk:
+            provided = qtk.strip()
+
+        if provided != token:
             return JSONResponse({"detail": "Unauthorized"}, status_code=401)
+
     return await call_next(request)
