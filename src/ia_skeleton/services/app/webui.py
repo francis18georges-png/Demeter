@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 import time
@@ -181,3 +181,14 @@ def preview_file(filename: str):
         raise HTTPException(status_code=500, detail=f"invalid manifest: {e}")
 
     raise HTTPException(status_code=404, detail="file not found")
+
+
+from fastapi import Form
+
+@app.post("/chat")
+def chat(q: str = Form(...)):
+    text = (q or "")
+    low = text.lower()
+    if ("csv" in low) or ("import" in low) or ("fichier" in low):
+        return {"intent": "upload", "hint": "/files"}
+    return {"intent": "chat", "echo": text}
