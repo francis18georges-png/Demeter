@@ -26,10 +26,19 @@ def logs_viewer():
   <button id="btn-save-token">Enregistrer le token</button>
   <a id="btn-export" href="/logs/export"><button>Exporter (.tar.gz)</button></a>
 </div>
+<div class="row">
+  <button id="btn-copy-link">Copier le lien partageable</button>
+  <span id="copy-status" class="pill" style="display:none">copié ✓</span>
+</div>
 
 <div class="row">
   <label>event: <input id="f-event" placeholder="upload / preview"></label>
-  <label>since_ts(ms): <input id="f-since" type="number" placeholder="0"></label>
+    <label>level: <select id="f-level">
+      <option value="">(tous)</option>
+      <option>critical</option><option>error</option><option>warning</option>
+      <option>info</option><option>debug</option><option>trace</option>
+    </select></label>
+<label>since_ts(ms): <input id="f-since" type="number" placeholder="0"></label>
   <label>order: <select id="f-order"><option>desc</option><option>asc</option></select></label>
   <button id="btn-reload">Recharger</button>
   <span id="sse-state" class="pill">SSE: off</span>
@@ -78,7 +87,10 @@ function row(e){
 
 async function reload(){
   const ev=$("#f-event").value.trim(), sn=$("#f-since").value.trim(), od=$("#f-order").value.trim();
-  const qs=new URLSearchParams({limit:"200",order:od||"desc"}); if(ev) qs.set("event",ev); if(sn) qs.set("since_ts",sn);
+  const qs=new URLSearchParams({limit:"200",order:od||"desc"});
+ if(ev) qs.set("event",ev);
+ const lv=$("#f-level").value.trim(); if(lv) qs.set("level",lv);
+ if(sn) qs.set("since_ts",sn);
   const r=await fetch("/logs?"+qs.toString(), { headers: authHeaders() });
   if(!r.ok){ alert("Erreur "+r.status+" — pensez à remplir le token."); return; }
   const data=await r.json();
@@ -89,7 +101,23 @@ async function reload(){
 function toggleSSE(){
   const tbody=$("#tbl tbody");
   if(window.__es){ window.__es.close(); window.__es=null; $("#sse-state").textContent="SSE: off"; return; }
-  const ev=$("#f-event").value.trim(), sn=$("#f-since").value.trim();
+  let attempt=0, es=null;
+  const connect=()=>{
+    const ev=$("#f-event").value.trim(), sn=$("#f-since").value.trim(), lv=$("#f-level").value.trim();
+    const qs=new URLSearchParams(); if(ev) qs.set("event",ev); if(lv) qs.set("level",lv); qs.set("since_ts", sn||"0");
+    es = new EventSource(addTok("/logs/stream?"+qs.toString()));
+    window.__es = es; $("#sse-state").textContent="SSE: on";
+    es.onmessage=(msg)=>{ attempt=0; try{
+      const e=JSON.parse(msg.data);
+      tbody.insertBefore(row(e), tbody.firstChild);
+      $("#f-since").value=String(e.ts);
+    }catch(_){ }};
+    es.onerror=()=>{ es.close(); $("#sse-state").textContent="SSE: reconnecting…";
+      attempt++; const delay=Math.min(30000, 1000*Math.pow(2, attempt)); setTimeout(connect, delay);
+    };
+  };
+  connect();
+}const ev=$("#f-event").value.trim(), sn=$("#f-since").value.trim();
   const qs=new URLSearchParams(); if(ev) qs.set("event",ev); qs.set("since_ts", sn||"0");
   // EventSource => query token obligatoire (pas de headers possibles)
   window.__es=new EventSource(addTok("/logs/stream?"+qs.toString()));
@@ -108,3 +136,5 @@ $("#btn-sse").onclick=toggleSSE;
 reload();
 </script>
 """)
+
+
