@@ -157,3 +157,27 @@ def preview(filename: str):
     return PlainTextResponse(
         f"Aperçu non supporté pour {filename} (mime={mime})", status_code=200
     )
+from fastapi import HTTPException
+import json
+
+@app.get("/preview/{filename}")
+def preview_file(filename: str):
+    manifest_path = INGEST / "manifest.jsonl"
+    if not manifest_path.exists():
+        raise HTTPException(status_code=404, detail="manifest not found")
+
+    # Chercher le fichier dans le manifest
+    try:
+        for line in manifest_path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            if row.get("filename") == filename:
+                try:
+                    return (INGEST / filename).read_text(encoding="utf-8")
+                except Exception as e:
+                    raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"invalid manifest: {e}")
+
+    raise HTTPException(status_code=404, detail="file not found")
