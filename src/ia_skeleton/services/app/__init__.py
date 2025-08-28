@@ -15,3 +15,7 @@ try:
     from . import logs_level_patch  # filtre /logs par ?level=
 except Exception:
     pass
+try:
+    from . import logs_stream_level_patch  # filtre SSE /logs/stream par ?level=
+except Exception:
+    pass
