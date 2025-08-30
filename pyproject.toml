@@ -15,7 +15,10 @@ dependencies = [
   "uvicorn[standard]>=0.30.6",
   "jinja2>=3.1.4",
   "python-multipart>=0.0.9",
-  "httpx>=0.28.1"
+  "httpx>=0.28.1",
+  "numpy>=1.26.0",
+  "pandas>=2.2.0",
+  "scikit-learn>=1.4.2"
 ]
 
 [tool.setuptools.packages.find]
