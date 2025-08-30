@@ -1,10 +1,8 @@
-﻿from typing import Literal
-Intent = Literal["upload_file","ask_question","unknown"]
+"""Routing logic for user intents."""
 
-def route(text: str) -> Intent:
-    t = (text or "").strip().lower()
-    if any(k in t for k in ["upload","import","fichier","file"]):
-        return "upload_file"
-    if t:
-        return "ask_question"
-    return "unknown"
+from .model import Intent, TrainedModel, predict
+
+
+def route(text: str, model: TrainedModel) -> Intent:
+    """Route ``text`` to a specific intent using ``model``."""
+    return predict(text, model)
