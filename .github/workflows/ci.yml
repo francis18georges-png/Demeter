@@ -26,6 +26,9 @@ jobs:
       - name: Unit tests
         run: python -m pytest -q
 
+      - name: Intent model tests
+        run: python -m pytest -q tests/test_intent_model.py
+
       - name: Simulate offline
         run: python tools/simulate_offline.py
 
